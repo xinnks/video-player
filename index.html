@@ -1,32 +1,158 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Welcome to Vue</title>
+  <title>Video Player</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="css/uikit.min.css" />
   <script src="js/uikit.min.js"></script>
   <script src="js/uikit-icons.min.js"></script>
   <script src="js/vue.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script>
+  <style>
+    .uk-panel > img{
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <div id="app">
-    
+  <div class="uk-section-default" id="app">
+    <div class="uk-container">
+      <vp-navigation-bar></vp-navigation-bar>
+      <vp-player></vp-player>
+      <vp-content></vp-content>
+      <vp-footer></vp-footer>
+    </div>
   </div>
 
+
+  <div class="uk-position-relative uk-visible-toggle uk-light" uk-slider="clsActivated: uk-transition-active; center: true">
+
+    <ul class="uk-slider-items uk-grid">
+        <li class="uk-width-3-4">
+            <div class="uk-panel">
+              <img v-on:click="$parent.playVideo(video.id, $event)" :src="video.snippet.thumbnails.high.url" :alt="video.snippet.title">
+                <div class="uk-overlay uk-overlay-primary uk-position-bottom uk-text-left uk-transition-slide-bottom">
+                    <h3 class="uk-margin-remove">{{video.snippet.title}}</h3>
+                    <p class="uk-margin-remove">{{video.snippet.description}}</p>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+    <a class="uk-position-center-left uk-position-small uk-hidden-hover" href="#" uk-slidenav-previous uk-slider-item="previous"></a>
+    <a class="uk-position-center-right uk-position-small uk-hidden-hover" href="#" uk-slidenav-next uk-slider-item="next"></a>
+
+</div>
+
+
   <script>
+    Vue.component('vp-navigation-bar',{
+      template: `
+      <nav class="uk-navbar-container uk-navbar-transparent uk-margin" uk-navbar>
+      <div class="uk-navbar-center">
+  
+          <div class="uk-navbar-center-left">
+            <div>
+              <ul class="uk-navbar-nav">
+                  <li class="uk-active"><a href="#">Item 1</a></li>
+              </ul>
+          </div>
+        </div>
+          <a class="uk-navbar-item uk-logo" href="#">Video Pl<span uk-icon="icon: play-circle; ratio: 2"> </span>yer</a>
+          <div class="uk-navbar-center-right"><div>
+              <ul class="uk-navbar-nav">
+                  <li><a href="#">Item 2</a></li>
+              </ul>
+          </div>
+        </div>
+  
+      </div>
+  </nav>
+      `
+    })
+    Vue.component('vp-footer',{
+      template: `
+      <div class="uk-section-default">
+    <div class="container">
+        <div class="uk-column-1-1">
+          <p class="uk-align-center">Top Videos TM</p>
+        </div>
+    </div>
+  </div>
+      `
+    })
     Vue.component('vp-player',{
       props: [],
-      template: ``
+      template: `
+      <div class="uk-section-secondary">
+    <div class="container">
+        <div class="uk-align-center">
+            <iframe class="uk-align-center" :src="$parent.videoToPlay" width="560" height="315" frameborder="0" allowfullscreen uk-responsive uk-video="automute: true;autoplay: inview"></iframe>  
+        </div>
+    </div>
+  </div>
+      `
+    })
+    Vue.component('vp-content', {
+      template: `
+      <div class="uk-section-primary">
+    <div class="container">
+        <div class="uk-position-relative uk-visible-toggle uk-light" uk-slider="finite: true">
+
+            <ul class="uk-slider-items uk-child-width-1-2 uk-child-width-1-3@m uk-grid">
+                <li v-for="(video, key) in $parent.AllVideos" :key="key">
+                    <div class="uk-panel">
+                        <img v-on:click="$parent.playVideo(video.id, $event)" :src="video.snippet.thumbnails.high.url" :alt="video.snippet.title">
+                        <div class="uk-position-center uk-panel"></div>
+                    </div>
+                </li>
+            </ul>
+        
+            <a class="uk-position-center-left uk-position-small uk-hidden-hover" href="#" uk-slidenav-previous uk-slider-item="previous"></a>
+            <a class="uk-position-center-right uk-position-small uk-hidden-hover" href="#" uk-slidenav-next uk-slider-item="next"></a>
+        
+        </div>
+    </div>
+  </div>
+      `
     })
 
     const app = new Vue({
       el: '#app',
       data () {
-        return {} 
+        return {
+          videoToPlay: '',
+          yk: 'AIzaSyB3qwMvmqBOHk7-1bowjECxEY-KaPRxx3M',
+          AllVideos: ''
+        } 
+      },
+      mounted(){
+        this.fetchVideos()
       },
       methods: {
-        playVideo (){}
+        fetchVideos(){
+          var pp = this
+
+            axios.get('https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20&regionCode=TZ&key=' + this.yk)
+              .then(function (response) {
+
+                  pp.AllVideos = response.data.items
+                  console.log(pp.Video)
+              })
+              .catch(function (error) {
+                  if(error.status){
+                      alert(error)
+                  }
+              });
+        },
+        playVideo (video_id, event){
+          var pp =this
+            if(event){
+
+              pp.videoToPlay = 'https://www.youtube-nocookie.com/embed/'+video_id+'?autoplay=0&amp;showinfo=0&amp;rel=0&amp;modestbranding=1&amp;playsinline=1'
+            }
+        }
       }
     })
   </script>
