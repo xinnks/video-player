@@ -27,6 +27,8 @@
       <vp-content :videos="AllVideos"></vp-content>
       <br>
       <vp-content :videos="sportsVideos"></vp-content>
+      <br>
+      <vp-content :videos="musicVideos"></vp-content>
       <vp-footer></vp-footer>
     </div>
   </div>
@@ -128,6 +130,7 @@
           yk: 'AIzaSyB3qwMvmqBOHk7-1bowjECxEY-KaPRxx3M',
           AllVideos: '',
           sportsVideos: '',
+          musicVideos: '',
           Countries: isoCountries,
           countryCode: ''
         } 
@@ -145,7 +148,7 @@
         fetchVideos(){
           var pp = this
 
-            axios.get('https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20&regionCode='+pp.countryCode+'&key=' + pp.yk)
+            axios.get('https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20&regionCode='+pp.countryCode +'&key=' + pp.yk)
               .then(function (response) {
 
                   pp.AllVideos = response.data.items
@@ -158,10 +161,23 @@
               });
 
               // sports videos
-              axios.get('https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20&videoCategoryId=17&regionCode='+pp.countryCode+'&key=' + pp.yk)
+              axios.get('https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20&videoCategoryId=17&regionCode='+pp.countryCode +'&key=' + pp.yk)
               .then(function (response) {
 
                   pp.sportsVideos = response.data.items
+                  console.log(pp.Video)
+              })
+              .catch(function (error) {
+                  if(error.status){
+                      alert(error)
+                  }
+              });
+
+              // music videos
+              axios.get('https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20&videoCategoryId=10&regionCode='+pp.countryCode +'&key=' + pp.yk)
+              .then(function (response) {
+
+                  pp.musicVideos = response.data.items
                   console.log(pp.Video)
               })
               .catch(function (error) {
