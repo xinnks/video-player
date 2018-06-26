@@ -11,11 +11,14 @@
   <script src="js/isoCountries.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script>
   <style>
-    .uk-panel > img{
+    .uk-panel > img, .vp-link{
       cursor: pointer;
     }
     #app{
       background-color: black;
+    }
+    .vp-red{
+      color: brown !important;
     }
   </style>
 </head>
@@ -23,6 +26,7 @@
   <div class="uk-section-default" id="app">
     <div class="uk-container">
       <vp-navigation-bar></vp-navigation-bar>
+      <vp-region></vp-region>
       <vp-player></vp-player>
       <vp-content :videos="AllVideos"></vp-content>
       <br>
@@ -45,27 +49,14 @@
           <div class="uk-navbar-center-left">
             <div>
               <ul class="uk-navbar-nav">
-                  <li class="uk-active">
-                      <div class="uk-margin">
-                        <div uk-form-custom="target: > * > span:last-child">
-                            <select v-model="$parent.countryCode">
-                                <option selected default value="TZ">Tanzania</option>
-                                <option v-for="(country, key) in $parent.Countries" :value="country.ccode">{{country.cname}}</option>
-                            </select>
-                            <span class="uk-link">
-                                <span uk-icon="icon: youtube"></span>
-                                <span></span>
-                            </span>
-                        </div>
-                    </div>  
-                  </li>
+                  <li></li>
               </ul>
           </div>
         </div>
-          <a class="uk-navbar-item uk-logo" href="#">Video Pl<span uk-icon="icon: play-circle; ratio: 2"> </span>yer</a>
+          <a class="uk-navbar-item uk-logo vp-red" href="#">Video Pl<span class=" vp-red" uk-icon="icon: play-circle; ratio: 2"> </span>yer</a>
           <div class="uk-navbar-center-right"><div>
               <ul class="uk-navbar-nav">
-                  <li><a href="#">Item 2</a></li>
+                  <li></li>
               </ul>
           </div>
         </div>
@@ -76,13 +67,13 @@
     })
     Vue.component('vp-footer',{
       template: `
-      <div class="uk-section-default">
-    <div class="container">
-        <div class="uk-column-1-1">
-          <p class="uk-align-center">Top Videos TM</p>
+      <div class="uk-section-secondary">
+        <div class="container">
+            <div class="uk-column-1-1">
+              <p class="uk-text-center">Video Player</p>
+            </div>
         </div>
-    </div>
-  </div>
+      </div>
       `
     })
     Vue.component('vp-player',{
@@ -108,7 +99,7 @@
                 <li v-for="(video, key) in videos" :key="key">
                     <div class="uk-panel">
                         <img v-on:click="$parent.playVideo(video.id, $event)" :src="video.snippet.thumbnails.high.url" :alt="video.snippet.title">
-                        <div class="uk-position-bottom uk-overlay uk-overlay-primary uk-panel">{{video.snippet.title | concat}}</div>
+                        <div class="uk-position-bottom uk-overlay uk-overlay-primary uk-panel"><span class="vp-link" v-on:click="$parent.playVideo(video.id, $event)" >{{video.snippet.title | concat(40)}}</span></div>
                     </div>
                 </li>
             </ul>
@@ -121,7 +112,26 @@
   </div>
       `
     })
-
+    Vue.component('vp-region',{
+      template: `
+      <div class="uk-section-secondary">
+        <div class="container">
+            <div class="uk-margin uk-text-center">
+                <div uk-form-custom="target: > * > span:last-child">
+                    <select v-model="$parent.countryCode">
+                        <option selected default value="TZ">Tanzania</option>
+                        <option v-for="(country, key) in $parent.Countries" :value="country.ccode">{{country.cname}}</option>
+                    </select>
+                    <span class="uk-link">
+                        <span uk-icon="icon: youtube"></span>
+                        <span></span>
+                    </span>
+                </div>
+            </div> 
+        </div>
+      </div>
+      `
+    })
     const app = new Vue({
       el: '#app',
       data () {
@@ -192,7 +202,7 @@
 
               pp.videoToPlay = 'https://www.youtube-nocookie.com/embed/'+video_id+'?autoplay=0&amp;showinfo=0&amp;rel=0&amp;modestbranding=1&amp;playsinline=1';
 
-              window.scrollTo(0, 0);
+              window.scrollTo(0, 80);
             }
         }
       }
