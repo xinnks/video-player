@@ -8,6 +8,7 @@
   <script src="js/uikit.min.js"></script>
   <script src="js/uikit-icons.min.js"></script>
   <script src="js/vue.js"></script>
+  <script src="js/isoCountries.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script>
   <style>
     .uk-panel > img{
@@ -24,29 +25,11 @@
       <vp-footer></vp-footer>
     </div>
   </div>
-
-
-  <div class="uk-position-relative uk-visible-toggle uk-light" uk-slider="clsActivated: uk-transition-active; center: true">
-
-    <ul class="uk-slider-items uk-grid">
-        <li class="uk-width-3-4">
-            <div class="uk-panel">
-              <img v-on:click="$parent.playVideo(video.id, $event)" :src="video.snippet.thumbnails.high.url" :alt="video.snippet.title">
-                <div class="uk-overlay uk-overlay-primary uk-position-bottom uk-text-left uk-transition-slide-bottom">
-                    <h3 class="uk-margin-remove">{{video.snippet.title}}</h3>
-                    <p class="uk-margin-remove">{{video.snippet.description}}</p>
-                </div>
-            </div>
-        </li>
-    </ul>
-
-    <a class="uk-position-center-left uk-position-small uk-hidden-hover" href="#" uk-slidenav-previous uk-slider-item="previous"></a>
-    <a class="uk-position-center-right uk-position-small uk-hidden-hover" href="#" uk-slidenav-next uk-slider-item="next"></a>
-
-</div>
-
-
+  
   <script>
+    Vue.filter('concat', function  (text, length = 30){
+      return text.substring(0, length)+'..';
+    })
     Vue.component('vp-navigation-bar',{
       template: `
       <nav class="uk-navbar-container uk-navbar-transparent uk-margin" uk-navbar>
@@ -55,7 +38,20 @@
           <div class="uk-navbar-center-left">
             <div>
               <ul class="uk-navbar-nav">
-                  <li class="uk-active"><a href="#">Item 1</a></li>
+                  <li class="uk-active">
+                      <div class="uk-margin">
+                        <div uk-form-custom="target: > * > span:last-child">
+                            <select v-model="$parent.countryCode">
+                                <option selected default value="TZ">Tanzania</option>
+                                <option v-for="(country, key) in $parent.Countries" :value="country.ccode">{{country.cname}}</option>
+                            </select>
+                            <span class="uk-link">
+                                <span uk-icon="icon: youtube"></span>
+                                <span></span>
+                            </span>
+                        </div>
+                    </div>  
+                  </li>
               </ul>
           </div>
         </div>
@@ -104,7 +100,7 @@
                 <li v-for="(video, key) in $parent.AllVideos" :key="key">
                     <div class="uk-panel">
                         <img v-on:click="$parent.playVideo(video.id, $event)" :src="video.snippet.thumbnails.high.url" :alt="video.snippet.title">
-                        <div class="uk-position-center uk-panel"></div>
+                        <div class="uk-position-bottom uk-overlay uk-overlay-primary uk-panel">{{video.snippet.title | concat}}</div>
                     </div>
                 </li>
             </ul>
@@ -124,17 +120,25 @@
         return {
           videoToPlay: '',
           yk: 'AIzaSyB3qwMvmqBOHk7-1bowjECxEY-KaPRxx3M',
-          AllVideos: ''
+          AllVideos: '',
+          Countries: isoCountries,
+          countryCode: ''
         } 
       },
+      watch: {
+        countryCode(){
+          this.fetchVideos()
+        }
+      },
       mounted(){
+        this.countryCode = 'TZ'
         this.fetchVideos()
       },
       methods: {
         fetchVideos(){
           var pp = this
 
-            axios.get('https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20&regionCode=TZ&key=' + this.yk)
+            axios.get('https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20&regionCode='+pp.countryCode+'&key=' + pp.yk)
               .then(function (response) {
 
                   pp.AllVideos = response.data.items
